@@ -5,10 +5,26 @@ import (
 	"fmt"
 )
 
+// Transaction - информация о денежном переводе.
+// Содержит:
+//
+//	FromID - ID отправителя (кто переводит)
+//	ToID - ID получателя (кому переводят)
+//	Amount - сумма перевода (в рублях/долларах)
 type Transaction struct {
-	FromID string
-	ToID   string
-	Amount float64
+	FromID string  // ID отправителя
+	ToID   string  // ID получателя
+	Amount float64 // Сумма перевода (например: 150.50)
+}
+
+// PaymentSystem - центральная система переводов.
+// Содержит:
+//
+//	Users - всех зарегистрированных пользователей (ключ: ID, значение: данные пользователя)
+//	Transactions - полную историю всех платежей (список операций)
+type PaymentSystem struct {
+	Users        map[string]*User // База пользователей (ID → данные)
+	Transactions []Transaction    // История всех платежных операций
 }
 
 // Структура User: ID (строка), Name (строка), Balance (число).
