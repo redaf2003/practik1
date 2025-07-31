@@ -23,8 +23,18 @@ type Transaction struct {
 //	Users - всех зарегистрированных пользователей (ключ: ID, значение: данные пользователя)
 //	Transactions - полную историю всех платежей (список операций)
 type PaymentSystem struct {
-	Users        map[string]*User // База пользователей (ID → данные)
-	Transactions []Transaction    // История всех платежных операций
+	Users        map[string]User // База пользователей (ID → данные)
+	Transactions []Transaction   // История всех платежных операций
+}
+
+// Добавления пользователей в систему (берет ID пользователя и добавляет его в мапу).
+func (ps *PaymentSystem) AddUser(user User) {
+	ps.Users[user.Id] = user // Добавили нового пользователя в мапу
+}
+
+// Добавления транзакций в очередь (добавлие элемента в слайс)
+func (ps *PaymentSystem) AddTransaction(transaction Transaction) {
+	ps.Transactions = append(ps.Transactions, transaction) // Добавили транзакцию в слайс
 }
 
 // Структура User: ID (строка), Name (строка), Balance (число).
