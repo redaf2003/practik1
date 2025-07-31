@@ -57,7 +57,7 @@ func main() {
 	fmt.Printf("User2: %+v\n", user2)
 
 	fmt.Println("\nПосле снятия:")
-	if err := user1.Withdraw(100); err != nil {
+	if err := user1.Withdraw(1000); err != nil {
 		fmt.Println("Ошибка:", err)
 	}
 	if err := user2.Withdraw(200); err != nil {
