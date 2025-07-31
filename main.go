@@ -5,6 +5,12 @@ import (
 	"fmt"
 )
 
+type Transaction struct {
+	FromID string
+	ToID   string
+	Amount float64
+}
+
 // Структура User: ID (строка), Name (строка), Balance (число).
 type User struct {
 	Id      string
