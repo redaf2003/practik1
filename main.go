@@ -22,7 +22,7 @@ func (u *User) GetBalance() float64 {
 }
 
 func (u *User) Deposit(amount float64) {
-	amount += u.Balance
+	u.Balance += amount
 }
 
 func (u *User) Withdraw(amount float64) error {
@@ -33,31 +33,41 @@ func (u *User) Withdraw(amount float64) error {
 	return nil
 }
 
-func processAccount(account BankAccount) {
-	fmt.Println("Текущий баланс:", account.GetBalance())
+func processAccount(account BankAccount, depositAmt float64, withdrawAmt float64) {
+	fmt.Printf("Начальный баланс: %.2f\n", account.GetBalance())
 
-	account.Deposit(500)
-	fmt.Println("После пополнения 500:", account.GetBalance())
+	account.Deposit(depositAmt)
+	fmt.Printf("После пополнения на %.2f: %.2f\n", depositAmt, account.GetBalance())
 
-	err := account.Withdraw(200)
+	err := account.Withdraw(withdrawAmt)
 	if err != nil {
-		fmt.Println("Ошибка при снятии:", err)
+		fmt.Println("Ошибка:", err)
 	} else {
-		fmt.Println("после снятие 200:", account.GetBalance())
+		fmt.Printf("После снятия %.2f: %.2f\n", withdrawAmt, account.GetBalance())
 	}
-
 }
 
 func main() {
-	user := &User{
+	user1 := &User{
 		Id:      "1",
 		Name:    "Artem",
 		Balance: 1000.0,
 	}
 
-	var account BankAccount = user
+	user2 := &User{
+		Id:      "2",
+		Name:    "Egor",
+		Balance: 500.0,
+	}
 
-	processAccount(account)
+	var account1 BankAccount = user1
+	var account2 BankAccount = user2
 
-	fmt.Println("Итоговый баланс пользователя :", user.Balance)
+	fmt.Println("Операция с:", user1.Name)
+	processAccount(account1, 300, 400)
+
+	fmt.Println("Операция с:", user2.Name)
+	processAccount(account2, 200, 300)
+
+	fmt.Println("Итоговый баланс пользователя:", user1.Balance, user2.Balance)
 }
