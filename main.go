@@ -5,64 +5,59 @@ import (
 	"fmt"
 )
 
-// Структура User: ID (строка), Name (строка), Balance (число).
+type BankAccount interface {
+	Deposit(amount float64)
+	Withdraw(amount float64) error
+	GetBalance() float64
+}
+
 type User struct {
 	Id      string
 	Name    string
 	Balance float64
 }
 
-// Реализуйте метод пополнения счета для пользователя, увеличивающий баланс на указанную сумму.
-func (u *User) Deposit(amount float64) {
-	u.Balance += amount
+func (u *User) GetBalance() float64 {
+	return u.Balance
 }
 
-// Реализуйте метод Withdraw для структуры User, который уменьшает баланс на указанную сумму.
-// Проверяйте достаточность средств, возвращая ошибку при нехватке.
-func (u *User) Withdraw(amounts float64) error {
-	if amounts <= 0 {
-		return errors.New("Cумма должна быть положительной")
-	}
-	if amounts > u.Balance {
-		return errors.New("недостаточно средств")
-	}
-	u.Balance -= amounts
+func (u *User) Deposit(amount float64) {
+	amount += u.Balance
+}
 
+func (u *User) Withdraw(amount float64) error {
+	if u.Balance < amount {
+		return errors.New("Недостаточно средств ")
+	}
+	u.Balance -= amount
 	return nil
 }
 
+func processAccount(account BankAccount) {
+	fmt.Println("Текущий баланс:", account.GetBalance())
+
+	account.Deposit(500)
+	fmt.Println("После пополнения 500:", account.GetBalance())
+
+	err := account.Withdraw(200)
+	if err != nil {
+		fmt.Println("Ошибка при снятии:", err)
+	} else {
+		fmt.Println("после снятие 200:", account.GetBalance())
+	}
+
+}
+
 func main() {
-	//Создайте несколько объектов пользователей с разными значениями баланса и именами.
-	user1 := &User{
+	user := &User{
 		Id:      "1",
 		Name:    "Artem",
-		Balance: 500.0,
+		Balance: 1000.0,
 	}
 
-	user2 := &User{
-		Id:      "2",
-		Name:    "Egor",
-		Balance: 300.0,
-	}
+	var account BankAccount = user
 
-	//Провели операции пополнения и снятия средств. После каждой операции выводите баланс.
-	fmt.Println("\nНачальные балансы:")
-	fmt.Printf("User1: %+v\n", user1)
-	fmt.Printf("User2: %+v\n", user2)
+	processAccount(account)
 
-	fmt.Println("\nПосле пополнения:")
-	user1.Deposit(200)
-	user2.Deposit(300)
-	fmt.Printf("User1: %+v\n", user1)
-	fmt.Printf("User2: %+v\n", user2)
-
-	fmt.Println("\nПосле снятия:")
-	if err := user1.Withdraw(1000); err != nil {
-		fmt.Println("Ошибка:", err)
-	}
-	if err := user2.Withdraw(200); err != nil {
-		fmt.Println("Ошибка:", err)
-	}
-	fmt.Printf("User1: %+v\n", user1)
-	fmt.Printf("User2: %+v\n", user2)
+	fmt.Println("Итоговый баланс пользователя :", user.Balance)
 }
