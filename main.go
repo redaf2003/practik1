@@ -63,11 +63,14 @@ func main() {
 	var account1 BankAccount = user1
 	var account2 BankAccount = user2
 
+	fmt.Println("---------------------------")
 	fmt.Println("Операция с:", user1.Name)
 	processAccount(account1, 300, 400)
-
+	fmt.Println("===========================")
 	fmt.Println("Операция с:", user2.Name)
 	processAccount(account2, 200, 300)
+	fmt.Println("---------------------------")
 
 	fmt.Println("Итоговый баланс пользователя:", user1.Balance, user2.Balance)
+	fmt.Println("---------------------------")
 }
