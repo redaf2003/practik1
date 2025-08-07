@@ -124,11 +124,11 @@ func main() {
 
 	// Демонстрация работы системы
 	fmt.Println("Создаю UserID: 1 с балансом 1000")
-	user1 := &User{ID: "1", Name: "User1", Balance: 1000}
+	user1 := &User{ID: "1", Name: "Артем", Balance: 1000}
 	ps.AddUser(user1)
 
 	fmt.Println("Создаю UserID: 2 с балансом 500")
-	user2 := &User{ID: "2", Name: "User2", Balance: 500}
+	user2 := &User{ID: "2", Name: "Егор", Balance: 500}
 	ps.AddUser(user2)
 
 	fmt.Println("Перевожу с UserID: 1 на UserID: 2 сумму в размере 200")
