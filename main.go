@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"sync"
 )
 
 // Интерфейсы для банковского аккаунта, транзакции и платежной системы
@@ -42,12 +43,63 @@ type PaymentTransaction struct {
 // Платежный процессор (основная логика)
 type PaymentProcessor struct {
 	Users            map[string]*User // хранилище пользователей
-	TransactionQueue []Transaction    // очередь транзакций
+	TransactionQueue []Transaction    // очередь транзакции
+	// добавили канал для транзакции
+}
+
+func (pp *PaymentProcessor) ProcessingTransactions() error {
+	// Создаем канал и WaitGroup
+	ch := make(chan Transaction, len(pp.TransactionQueue))
+	var wg sync.WaitGroup
+
+	// Запускаем 3 воркера
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go pp.Worker(ch, &wg)
+	}
+
+	// Отправляем транзакции в канал
+	for _, tx := range pp.TransactionQueue {
+		ch <- tx
+	}
+	close(ch)
+
+	// Ждем завершения всех горутин
+	wg.Wait()
+
+	// Очищаем очередь
+	pp.TransactionQueue = nil
+	return nil
 }
 
 // Методы пользователя
 func (u *User) Deposit(amount float64) {
 	u.Balance += amount // пополнение баланса
+}
+
+func (pp *PaymentProcessor) Worker(ch <-chan Transaction, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for t := range ch {
+		fromUser, exists := pp.Users[t.GetFromID()]
+		if !exists {
+			fmt.Printf("Ошибка: отправитель не найден (tx %v -> %v)\n", t.GetFromID(), t.GetToID())
+			continue
+		}
+
+		toUser, exists := pp.Users[t.GetToID()]
+		if !exists {
+			fmt.Printf("Ошибка: получатель не найден (tx %v -> %v)\n", t.GetFromID(), t.GetToID())
+			continue
+		}
+
+		if err := fromUser.Withdraw(t.GetAmount()); err != nil {
+			fmt.Printf("Ошибка транзакции: %v\n", err)
+			continue
+		}
+
+		toUser.Deposit(t.GetAmount())
+	}
 }
 
 func (u *User) Withdraw(amount float64) error {
@@ -87,30 +139,6 @@ func (pp *PaymentProcessor) AddTransaction(t Transaction) {
 	pp.TransactionQueue = append(pp.TransactionQueue, t) // добавление транзакции в очередь
 }
 
-func (pp *PaymentProcessor) ProcessingTransactions() error {
-	// Обработка всех транзакций в очереди
-	for _, t := range pp.TransactionQueue {
-		fromUser, exists := pp.Users[t.GetFromID()]
-		if !exists {
-			return fmt.Errorf("sender not found: %s", t.GetFromID()) // проверка отправителя
-		}
-
-		toUser, exists := pp.Users[t.GetToID()]
-		if !exists {
-			return fmt.Errorf("recipient not found: %s", t.GetToID()) // проверка получателя
-		}
-
-		if err := fromUser.Withdraw(t.GetAmount()); err != nil {
-			return fmt.Errorf("transaction failed: %v", err) // списание средств
-		}
-
-		toUser.Deposit(t.GetAmount()) // зачисление средств
-	}
-
-	pp.TransactionQueue = nil // очистка очереди после обработки
-	return nil
-}
-
 func (pp *PaymentProcessor) GetUserBalance(id string) (float64, error) {
 	user, exists := pp.Users[id]
 	if !exists {
@@ -120,30 +148,32 @@ func (pp *PaymentProcessor) GetUserBalance(id string) (float64, error) {
 }
 
 func main() {
-	var ps PaymentSystem = &PaymentProcessor{} // создание платежной системы
+	var ps PaymentSystem = &PaymentProcessor{
+		Users: make(map[string]*User),
+	}
 
-	// Демонстрация работы системы
+	// Добавляем пользователей
 	fmt.Println("Создаю UserID: 1 с балансом 1000")
-	user1 := &User{ID: "1", Name: "Артем", Balance: 1000}
+	user1 := &User{ID: "1", Name: "Егор", Balance: 1000}
 	ps.AddUser(user1)
 
 	fmt.Println("Создаю UserID: 2 с балансом 500")
-	user2 := &User{ID: "2", Name: "Егор", Balance: 500}
+	user2 := &User{ID: "2", Name: "Артем", Balance: 500}
 	ps.AddUser(user2)
 
+	// Добавляем транзакции
 	fmt.Println("Перевожу с UserID: 1 на UserID: 2 сумму в размере 200")
 	ps.AddTransaction(&PaymentTransaction{FromID: "1", ToID: "2", Amount: 200})
 
 	fmt.Println("Перевожу с UserID: 2 на UserID: 1 сумму в размере 50")
 	ps.AddTransaction(&PaymentTransaction{FromID: "2", ToID: "1", Amount: 50})
 
-	// Обработка транзакций
+	// Обрабатываем транзакции
 	if err := ps.ProcessingTransactions(); err != nil {
 		fmt.Println("Ошибка обработки транзакций:", err)
 		return
 	}
 
-	// Вывод результатов
 	fmt.Println("Итого")
 	if balance, err := ps.GetUserBalance("1"); err == nil {
 		fmt.Printf("У первого пользователя получилось: %.2f\n", balance)
@@ -151,4 +181,5 @@ func main() {
 	if balance, err := ps.GetUserBalance("2"); err == nil {
 		fmt.Printf("У второго пользователя получилось: %.2f\n", balance)
 	}
+
 }
