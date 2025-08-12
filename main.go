@@ -123,32 +123,32 @@ func main() {
 	var ps PaymentSystem = &PaymentProcessor{} // создание платежной системы
 
 	// Демонстрация работы системы
-	fmt.Println("Создаю UserID: 1 с балансом 1000")
-	user1 := &User{ID: "1", Name: "Артем", Balance: 1000}
+	fmt.Print("Создаю UserID: 1 с балансом 1000\n")
+	user1 := &User{ID: "1", Name: "Артем", Balance: 350}
 	ps.AddUser(user1)
 
-	fmt.Println("Создаю UserID: 2 с балансом 500")
-	user2 := &User{ID: "2", Name: "Егор", Balance: 500}
+	fmt.Print("Создаю UserID: 2 с балансом 500\n")
+	user2 := &User{ID: "2", Name: "Егор", Balance: 100}
 	ps.AddUser(user2)
 
-	fmt.Println("Перевожу с UserID: 1 на UserID: 2 сумму в размере 200")
+	fmt.Print("Перевожу с UserID: 1 на UserID: 2 сумму в размере 200\n")
 	ps.AddTransaction(&PaymentTransaction{FromID: "1", ToID: "2", Amount: 200})
 
-	fmt.Println("Перевожу с UserID: 2 на UserID: 1 сумму в размере 50")
+	fmt.Print("Перевожу с UserID: 2 на UserID: 1 сумму в размере 50\n")
 	ps.AddTransaction(&PaymentTransaction{FromID: "2", ToID: "1", Amount: 50})
 
 	// Обработка транзакций
 	if err := ps.ProcessingTransactions(); err != nil {
-		fmt.Println("Ошибка обработки транзакций:", err)
+		fmt.Print("Ошибка обработки транзакций: ", err, "\n")
 		return
 	}
 
 	// Вывод результатов
-	fmt.Println("Итого")
+	fmt.Print("Итого\n")
 	if balance, err := ps.GetUserBalance("1"); err == nil {
-		fmt.Printf("У первого пользователя получилось: %.2f\n", balance)
+		fmt.Print("У Артема получилось: ", balance, "\n")
 	}
 	if balance, err := ps.GetUserBalance("2"); err == nil {
-		fmt.Printf("У второго пользователя получилось: %.2f\n", balance)
+		fmt.Print("У Егора получилось: ", balance, "\n")
 	}
 }
