@@ -10,11 +10,11 @@
    git clone https://github.com/ваш-username/название-репозитория.git
 3. Перейдите в нужную ветку для проверки конкретной версии:
 
-git checkout v1  # или v2/v3/v4
+...git checkout v1  # или v2/v3/v4
 
 4. Запустите программу:
 
-go run main.go
+...go run main.go
 
 # Версии проекта
 v1 - Базовая реализация
