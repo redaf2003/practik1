@@ -32,7 +32,7 @@ func (u *User) Deposit(amount float64) {
 // Снять деньги со счета
 func (u *User) Withdraw(amount float64) error {
 	if u.Balance < amount {
-		return errors.New("Недостаточно средств ") // Проверка на достаточность средств
+		return errors.New("Недостаточно средств") // Проверка на достаточность средств
 	}
 	u.Balance -= amount // Уменьшаем баланс
 	return nil
@@ -41,18 +41,18 @@ func (u *User) Withdraw(amount float64) error {
 // Обработка операций со счетом
 func processAccount(account BankAccount, depositAmt float64, withdrawAmt float64) {
 	// Выводим начальный баланс
-	fmt.Printf("Начальный баланс: %.2f\n", account.GetBalance())
+	fmt.Print("Начальный баланс: ", account.GetBalance(), "\n")
 
 	// Пополняем счет
 	account.Deposit(depositAmt)
-	fmt.Printf("После пополнения на %.2f: %.2f\n", depositAmt, account.GetBalance())
+	fmt.Print("После пополнения на ", depositAmt, ": ", account.GetBalance(), "\n")
 
 	// Пытаемся снять деньги
 	err := account.Withdraw(withdrawAmt)
 	if err != nil {
-		fmt.Println("Ошибка:", err) // Выводим ошибку если не хватает средств
+		fmt.Print("Ошибка: ", err, "\n") // Выводим ошибку если не хватает средств
 	} else {
-		fmt.Printf("После снятия %.2f: %.2f\n", withdrawAmt, account.GetBalance())
+		fmt.Print("После снятия ", withdrawAmt, ": ", account.GetBalance(), "\n")
 	}
 }
 
@@ -75,17 +75,17 @@ func main() {
 	var account2 BankAccount = user2
 
 	// Выполняем операции с первым пользователем
-	fmt.Println("---------------------------")
-	fmt.Println("Операция с:", user1.Name)
+	fmt.Print("---------------------------\n")
+	fmt.Print("Операция с: ", user1.Name, "\n")
 	processAccount(account1, 300, 400)
 
 	// Выполняем операции со вторым пользователем
-	fmt.Println("===========================")
-	fmt.Println("Операция с:", user2.Name)
+	fmt.Print("===========================\n")
+	fmt.Print("Операция с: ", user2.Name, "\n")
 	processAccount(account2, 200, 300)
-	fmt.Println("---------------------------")
+	fmt.Print("---------------------------\n")
 
 	// Выводим итоговые балансы
-	fmt.Println("Итоговый баланс пользователя:", user1.Balance, user2.Balance)
-	fmt.Println("---------------------------")
+	fmt.Print("Итоговый баланс пользователя: ", user1.Balance, " ", user2.Balance, "\n")
+	fmt.Print("---------------------------\n")
 }
